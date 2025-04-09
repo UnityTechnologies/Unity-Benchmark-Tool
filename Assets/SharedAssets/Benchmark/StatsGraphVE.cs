@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Unity.Mathematics;
 using Unity.Burst;
 
 namespace Benchmarking
