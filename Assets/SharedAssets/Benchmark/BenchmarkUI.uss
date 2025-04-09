@@ -1,6 +1,5 @@
 .Root {
-    -unity-font-definition: initial;
-    -unity-font: url('project://database/Packages/com.unity.render-pipelines.core/Runtime/Debugging/Prefabs/Fonts/PerfectDOSVGA437.ttf?fileID=12800000&guid=74a5091d8707f334b9a5c31ef71a64ba&type=3#PerfectDOSVGA437');
+    -unity-font: url("project://database/Assets/SharedAssets/PerfectDOSVGA437.ttf?fileID=12800000&guid=4072985865193416faf745a2c95bb006&type=3#PerfectDOSVGA437");
     -unity-font-style: normal;
     color: rgb(255, 255, 255);
     font-size: 16px;
