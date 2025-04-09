@@ -1,4 +1,3 @@
-using Unity.Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,10 +17,7 @@ namespace Benchmarking
 
         [FormerlySerializedAs("SceneName")]
         public string sceneName;
-
-        // TODO: Remove followings
-        public Vector3 cameraPosition;
-        public Quaternion cameraRotation;
+        
         public bool useFullTimeline = true;
         // ENDTODO
 
@@ -30,7 +26,6 @@ namespace Benchmarking
 
         private int _recordingIndex = 0;
 
-        private Camera _testCamera => PerformanceTest.instance.testCamera;
         private Action _finishedAction;
         private PlayableDirector _playableDirector;
         private float _intermediateCaptureTime;
@@ -251,10 +246,6 @@ namespace Benchmarking
             status = TestStageStatus.Warming;
             _cancelButton.text = "Stop";
 
-            // Debug.Log($"Start test {sceneName}");
-
-            _testCamera.transform.position = cameraPosition;
-            _testCamera.transform.rotation = cameraRotation;
 
             // Debug.Log($"Load Scene {sceneName}");
 
@@ -266,9 +257,7 @@ namespace Benchmarking
 
             yield return null;
             PerformanceTest.instance.RefreshEventSystem();
-
-            DisableCamerasInScene();
-
+            
             var directors = Resources.FindObjectsOfTypeAll<PlayableDirector>();
             
             // Debug.Log($"Found {directors.Length} playable director(s) in the scene {SceneManager.GetActiveScene().name}");
@@ -281,13 +270,7 @@ namespace Benchmarking
             if (_playableDirector != null)
             {
                 _playableDirector.gameObject.SetActive(true);
-                var playable = _playableDirector.playableAsset;
-                if (playable.outputs.Any(o => o.outputTargetType == typeof(CinemachineBrain)))
-                {
-                    var cinemachineTrack = playable.outputs.Single(o => o.outputTargetType == typeof(CinemachineBrain)).sourceObject;
-                    _playableDirector.SetGenericBinding(cinemachineTrack, _testCamera.GetComponent<CinemachineBrain>());
-                }
-
+        
                 var duration = (float)_playableDirector.duration;
                 _intermediateCaptureTime = duration / (PerformanceTest.instance._framesToCapture + 1);
 
@@ -429,18 +412,6 @@ namespace Benchmarking
 
             _cancelButton.style.opacity = 0;
             _cancelButton.clicked -= Cancel;
-        }
-
-        private void DisableCamerasInScene()
-        {
-            foreach (var camera in UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))
-            {
-                // Debug.Log("Found camera: " + camera.gameObject.name);
-                if (camera.gameObject != _testCamera.gameObject)
-                {
-                    camera.enabled = false;
-                }
-            }
         }
 
         public void RefreshDisplayedData()
