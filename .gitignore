@@ -45,3 +45,4 @@ SerializedBuildInfo
 SwitchIL2CPP*
 Assets/ActualImages*
 Packages/packages-lock.json
+.DS_Store
