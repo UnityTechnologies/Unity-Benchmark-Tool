@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
@@ -187,13 +185,7 @@ namespace Benchmarking
 
             _instance = this;
             DontDestroyOnLoad(this);
-
-            var playerManager = FindFirstObjectByType<PlayerManager>();
-            if (playerManager != null)
-            {
-                playerManager.gameObject.SetActive(false);
-            }
-
+            
             UnityEngine.Cursor.lockState = CursorLockMode.None;
         }
 
@@ -315,12 +307,6 @@ namespace Benchmarking
         private void CloseBenchmark()
         {
             UnityEngine.Object.Destroy(this.gameObject);
-
-            var playerManager = FindFirstObjectByType<PlayerManager>();
-            if (playerManager != null)
-            {
-                playerManager.gameObject.SetActive(true);
-            }
 
             UnityEngine.Cursor.lockState = CursorLockMode.Locked;
 
