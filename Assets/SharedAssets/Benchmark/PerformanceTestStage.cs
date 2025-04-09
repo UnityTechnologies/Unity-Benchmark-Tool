@@ -332,11 +332,8 @@ namespace Benchmarking
             while (
                 status != TestStageStatus.Stopped &&
                 (
-                    _recordingIndex < _frameDatas.Count ||
-                    (
-                        useFullTimeline && _playableDirector != null &&
-                        _playableDirector.state != PlayState.Paused
-                    )
+                    useFullTimeline && _playableDirector != null &&
+                    _playableDirector.state != PlayState.Paused
                 )
             )
             {
