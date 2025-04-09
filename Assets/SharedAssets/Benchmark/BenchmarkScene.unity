@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -129,14 +130,6 @@ PrefabInstance:
     - target: {fileID: 1194520623583548762, guid: ef27707b7f6ec0343b7a177d22a225ca, type: 3}
       propertyPath: m_Name
       value: Benchmark
-      objectReference: {fileID: 0}
-    - target: {fileID: 3871017663001273271, guid: ef27707b7f6ec0343b7a177d22a225ca, type: 3}
-      propertyPath: _stages.Array.data[1].sceneName
-      value: GardenScene
-      objectReference: {fileID: 0}
-    - target: {fileID: 3871017663001273271, guid: ef27707b7f6ec0343b7a177d22a225ca, type: 3}
-      propertyPath: _stages.Array.data[3].sceneName
-      value: CockpitScene
       objectReference: {fileID: 0}
     - target: {fileID: 8132712973314222637, guid: ef27707b7f6ec0343b7a177d22a225ca, type: 3}
       propertyPath: m_LocalPosition.x
