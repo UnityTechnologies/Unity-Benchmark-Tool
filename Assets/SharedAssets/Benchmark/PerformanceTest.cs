@@ -41,9 +41,6 @@ namespace Benchmarking
 
         [SerializeField]
         public float _waitTime = 5f;
-        // TODO: Remove _framesToCapture
-        [SerializeField]
-        public int _framesToCapture = 500;
 
         [SerializeField]
         [FormerlySerializedAs("m_TestDataVisualTreeReference")]

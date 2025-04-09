@@ -11,6 +11,11 @@ using UnityEngine.UIElements;
 
 namespace Benchmarking
 {
+    public enum BenchmarkType
+    {
+        UseTimeDuration,
+        UseTimelineInTheScene,
+    }
     [Serializable]
     public class PerformanceTestStage
     {
@@ -19,8 +24,8 @@ namespace Benchmarking
         [FormerlySerializedAs("SceneName")]
         public string sceneName;
         
-        public bool useFullTimeline = true;
-        // ENDTODO
+        public BenchmarkType benchmarkType = BenchmarkType.UseTimelineInTheScene;
+        public int timeDuration = 30;
 
         private List<FrameData> _frameDatas;
         private FrameData _minFrameData, _maxFrameData, _avgFrameData, _medianFrameData, _lowerQuartileFrameData, _upperQuartileFrameData;
@@ -29,7 +34,6 @@ namespace Benchmarking
 
         private Action _finishedAction;
         private PlayableDirector _playableDirector;
-        private float _intermediateCaptureTime;
 
         private bool _uiInitialized = false;
         private VisualElement
@@ -265,13 +269,13 @@ namespace Benchmarking
             else if (directors.Length > 0)
                 _playableDirector = directors[0];
             
-            if (directors.Length <= 0)
+            if (directors.Length <= 0 || benchmarkType == BenchmarkType.UseTimeDuration)
             {
                 // create dummy PlayableAsset with benchmarkDuration
                 var timelineAsset = ScriptableObject.CreateInstance<TimelineAsset>();
                 var track = timelineAsset.CreateTrack<ControlTrack>(null, "Control Track");
                 var clip = track.CreateDefaultClip();
-                clip.duration = 30;
+                clip.duration = timeDuration;
                 
                 _playableDirector = new GameObject("CinematicTimeline").AddComponent<PlayableDirector>();
                 _playableDirector.playableAsset = timelineAsset;
@@ -280,9 +284,6 @@ namespace Benchmarking
             if (_playableDirector != null)
             {
                 _playableDirector.gameObject.SetActive(true);
-        
-                var duration = (float)_playableDirector.duration;
-                _intermediateCaptureTime = duration / (PerformanceTest.instance._framesToCapture + 1);
 
                 _playableDirector.Play();
                 _playableDirector.extrapolationMode = DirectorWrapMode.None;
@@ -291,9 +292,6 @@ namespace Benchmarking
             }
 
             // Init
-            var initialListSize = PerformanceTest.instance._framesToCapture;
-            if (_playableDirector != null && useFullTimeline)
-                initialListSize = (int)_playableDirector.duration * 120;
             _recordingIndex = 0;
 
             _frameDatas = new List<FrameData>();
@@ -320,8 +318,7 @@ namespace Benchmarking
             _progressContainerVE.style.opacity = 1f;
             _progressLabel.text = "0";
             _progressBarVe.style.width = 0;
-
-            bool noIntermediateTime = useFullTimeline && _playableDirector != null;
+            
 
             if (_playableDirector != null)
             {
@@ -330,11 +327,7 @@ namespace Benchmarking
             }
 
             while (
-                status != TestStageStatus.Stopped &&
-                (
-                    useFullTimeline && _playableDirector != null &&
-                    _playableDirector.state != PlayState.Paused
-                )
+                status != TestStageStatus.Stopped && _playableDirector.state != PlayState.Paused
             )
             {
                 FrameData currentFrameData = FrameData.GetCurrentFrameData();
@@ -350,10 +343,7 @@ namespace Benchmarking
                 _progressLabel.text = timerLineAdvancement.ToString();
                 _progressBarVe.style.width = P(timerLineAdvancement);
 
-                if (noIntermediateTime)
-                    await Awaitable.EndOfFrameAsync();
-                else
-                    await Awaitable.WaitForSecondsAsync(_intermediateCaptureTime);
+                await Awaitable.EndOfFrameAsync();
             }
         }
 
