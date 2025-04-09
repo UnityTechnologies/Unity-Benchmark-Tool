@@ -221,18 +221,18 @@ namespace Benchmarking
 
             // Debug.Log("Called start for : " + sceneName);
 
-            PerformanceTest.instance.StartCoroutine(ProcessTest());
+            ProcessTestAsync();
         }
         public void SetFinishedAction(Action finishedAction) { _finishedAction = finishedAction; }
 
-        IEnumerator ProcessTest()
+        async Awaitable ProcessTestAsync()
         {
             if (status == TestStageStatus.Waiting)
             {
-                yield return LoadAndInit();
-                yield return new WaitForSeconds(PerformanceTest.instance._waitTime);
-                yield return RunTest();
-                yield return End();
+                await LoadAndInitAsync();
+                await Awaitable.WaitForSecondsAsync(PerformanceTest.instance._waitTime);
+                await RunTestAsync();
+                await EndAsync();
             }
 
             if (_finishedAction != null)
@@ -242,7 +242,7 @@ namespace Benchmarking
             }
         }
 
-        IEnumerator LoadAndInit()
+        async Awaitable LoadAndInitAsync()
         {
             status = TestStageStatus.Warming;
             _cancelButton.text = "Stop";
@@ -250,13 +250,10 @@ namespace Benchmarking
 
             // Debug.Log($"Load Scene {sceneName}");
 
-            SceneManager.sceneLoaded += SceneLoadCallback;
-            SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+            await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
 
-            // Wait for scene to be loaded
-            yield return new WaitUntil(HasSceneLoaded);
-
-            yield return null;
+            await Awaitable.EndOfFrameAsync();
+            
             PerformanceTest.instance.RefreshEventSystem();
             
             var directors = Resources.FindObjectsOfTypeAll<PlayableDirector>();
@@ -309,25 +306,13 @@ namespace Benchmarking
             _minFrameData = new FrameData(Mathf.Infinity);
         }
 
-        private bool sceneLoaded = false;
-        private bool HasSceneLoaded()
-        {
-            return sceneLoaded;
-        }
 
-        void SceneLoadCallback( Scene scene, LoadSceneMode loadSceneMode)
-        {
-            // Debug.Log($"Scene {scene.name} has loaded.");
-
-            SceneManager.SetActiveScene(scene);
-            sceneLoaded = true;
-            SceneManager.sceneLoaded -= SceneLoadCallback;
-        }
-
-        IEnumerator RunTest()
+        async Awaitable RunTestAsync()
         {
             if (status != TestStageStatus.Warming)
-                yield break;
+            {
+                return;
+            }
 
             // Debug.Log("Start running test.");
 
@@ -369,21 +354,25 @@ namespace Benchmarking
                 _progressBarVe.style.width = P(timerLineAdvancement);
 
                 if (noIntermediateTime)
-                    yield return null;
+                    await Awaitable.EndOfFrameAsync();
                 else
-                    yield return new WaitForSeconds(_intermediateCaptureTime);
+                    await Awaitable.WaitForSecondsAsync(_intermediateCaptureTime);
             }
         }
 
-        IEnumerator End()
+        async Awaitable EndAsync()
         {
             _cancelButton.style.opacity = 0;
             _cancelButton.clicked -= Cancel;
 
             if (status == TestStageStatus.Running)
+            {
                 status = TestStageStatus.Finished;
+            }
             else if (status != TestStageStatus.Stopped)
-                yield break;
+            {
+                return;
+            }
 
             _progressContainerVE.style.opacity = 0f;
             // Debug.Log($"Test {sceneName} finished and captured {_frameDatas.Count} frames timings");
@@ -408,7 +397,7 @@ namespace Benchmarking
 
             WriteCSV();
 
-            yield return null;
+            await Awaitable.EndOfFrameAsync();
         }
 
         void Cancel()
