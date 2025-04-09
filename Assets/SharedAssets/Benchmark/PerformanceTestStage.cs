@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using UnityEngine.Timeline;
 using UnityEngine.UIElements;
 
 namespace Benchmarking
@@ -266,6 +267,18 @@ namespace Benchmarking
                 _playableDirector = directors.First(d => (d.gameObject.name == "CinematicTimeline") || d.gameObject.CompareTag("BenchmarkTimeline"));
             else if (directors.Length > 0)
                 _playableDirector = directors[0];
+            
+            if (directors.Length <= 0)
+            {
+                // create dummy PlayableAsset with benchmarkDuration
+                var timelineAsset = ScriptableObject.CreateInstance<TimelineAsset>();
+                var track = timelineAsset.CreateTrack<ControlTrack>(null, "Control Track");
+                var clip = track.CreateDefaultClip();
+                clip.duration = 30;
+                
+                _playableDirector = new GameObject("CinematicTimeline").AddComponent<PlayableDirector>();
+                _playableDirector.playableAsset = timelineAsset;
+            }
 
             if (_playableDirector != null)
             {
